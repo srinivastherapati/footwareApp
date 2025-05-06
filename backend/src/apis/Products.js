@@ -7,7 +7,7 @@ const productRouter = express.Router();
 productRouter.post('/product/add', async (req, res) => {
     try {
         console.log("Entered add product");
-        const { name, description, imageUrl, category, productVariants } = req.body;
+        const { name, description, imageUrl, category, productVariants,brand,modal,typeOfWear } = req.body;
 
         if (!name) return res.status(400).json({ message: "Product name can't be null" });
         if (!description) return res.status(400).json({ message: "Product description can't be null" });
@@ -32,7 +32,10 @@ productRouter.post('/product/add', async (req, res) => {
             imageUrl, 
             category:category.toUpperCase(),
             rating: 0, 
-            productVariants: savedVariants.map(v => v._id) 
+            productVariants: savedVariants.map(v => v._id) ,
+            brand:brand.toUpperCase(),
+            modal,
+            typeOfWear:typeOfWear.toUpperCase()
         });
         await product.save();
 

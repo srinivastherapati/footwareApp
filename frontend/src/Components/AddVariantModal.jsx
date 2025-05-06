@@ -5,7 +5,6 @@ export default function AddVariantModal({ product, onClose }) {
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [price, setPrice] = useState("");
-  const [type, setType] = useState("");
   const [stock, setStock] = useState("");
   const [attributes, setAttributes] = useState({});
   const [attributeKey, setAttributeKey] = useState("");
@@ -21,7 +20,7 @@ export default function AddVariantModal({ product, onClose }) {
   };
 
   const handleAddVariant = async () => {
-    if (!size || !color || !price || !stock || !type) {
+    if (!size || !color || !price || !stock ) {
       alert("Please fill in all fields!");
       return;
     }
@@ -32,6 +31,9 @@ export default function AddVariantModal({ product, onClose }) {
       productId: product.id,
       imageUrl: product.imageUrl,
       category: product.category,
+      typeofWear: product.typeOfWear,
+      brand: product.brand, 
+      modal: product.modal,
       productVariants: [
         {
           size,
@@ -39,7 +41,6 @@ export default function AddVariantModal({ product, onClose }) {
           productName,
           price: parseFloat(price),
           stock: parseInt(stock, 10),
-          type ,
           attributes,
         },
       ],
@@ -49,7 +50,7 @@ export default function AddVariantModal({ product, onClose }) {
     try {
       const response = await addProduct(newVariant);
       if (response) {
-        alert("Added Product Successfully!");
+        alert("Added Product variant Successfully!");
         window.location.reload();
       }
     } catch (error) {
@@ -93,17 +94,23 @@ export default function AddVariantModal({ product, onClose }) {
       })}
     </select>
   </div>
-          <div>
-            <label className="block font-medium mb-1">Color</label>
-            <input
-              type="text"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
-              placeholder="e.g. Black"
-            />
-          </div>
-
+  <div>
+  <label className="block font-medium mb-1">Color</label>
+  <select
+    value={color}
+    onChange={(e) => setColor(e.target.value)}
+    className="w-full border rounded-lg px-3 py-2"
+    required
+  >
+    <option value="">Select a color</option>
+    <option value="Black">Black</option>
+    <option value="White">White</option>
+    <option value="Red">Red</option>
+    <option value="Blue">Blue</option>
+    <option value="Green">Green</option>
+    <option value="Yellow">Yellow</option>
+  </select>
+</div>
           <div>
             <label className="block font-medium mb-1">Price ($)</label>
             <input
@@ -124,26 +131,6 @@ export default function AddVariantModal({ product, onClose }) {
               className="w-full border rounded-lg px-3 py-2"
               placeholder="Enter stock"
             />
-          </div>
-
-          <div>
-            <label className="block font-medium mb-1">Type</label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
-            >
-              <option value="">Select Type</option>
-              {["SNEAKERS", "RUNNING", "CASUAL","SPORTS", "FORMAL", "LOAFERS", "BOOTS"].map((tp) => (
-                <option
-                  key={tp}
-                  value={tp.toUpperCase()}
-                  disabled={product.productVariants.some((variant) => variant.type === tp)}
-                >
-                  {tp}
-                </option>
-              ))}
-            </select>
           </div>
           </div>
         

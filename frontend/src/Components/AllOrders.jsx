@@ -12,6 +12,10 @@ import {
   CircularProgress,
   Button,
   Select,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   MenuItem,
 } from "@mui/material";
 import { getAllOrders, updateOrderStatus } from "./ServerRequests";
@@ -24,7 +28,9 @@ const statusOptions = [
   "READY",
   "DELIVERED",
   "CANCELLED",
+  "CANCELLED BY USER",
   "Cancelled (By Admin)",
+  "RETURNED",
 ];
 
 const AllOrders = () => {
@@ -33,6 +39,7 @@ const AllOrders = () => {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [orderUnderReview, setOrderUnderReview] = useState(null);
 
   const fetchOrders = async (page) => {
     setLoading(true);
@@ -94,6 +101,8 @@ const AllOrders = () => {
               <TableCell align="center">Total Price</TableCell>
               <TableCell align="center">Order Date</TableCell>
               <TableCell>Order Status</TableCell>
+              <TableCell>Cancellation Review</TableCell>
+
             </TableRow>
           </TableHead>
           <TableBody>
@@ -125,19 +134,35 @@ const AllOrders = () => {
                     {new Date(order.orderDate).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <Select
-                      className="select-dropdown"
-                      value={order.status}
-                      onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
-                      disabled={order.status === "DELIVERED" || order.status === "CANCELLED"}
-                    >
-                      {statusOptions.map((option) => (
-                        <MenuItem key={option} value={option}>
-                          {option}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </TableCell>
+  <Select
+    className="select-dropdown"
+    value={order.status}
+    onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
+    disabled={
+      order.status === "DELIVERED" ||
+      order.status === "CANCELLED" ||
+      order.status === "RETURNED"
+    }
+  >
+    {statusOptions.map((option) => (
+      <MenuItem key={option} value={option}>
+        {option}
+      </MenuItem>
+    ))}
+  </Select>
+</TableCell>
+<TableCell>
+  {order.status === "CANCELLED BY USER" && (
+    <Button
+      variant="outlined"
+      color="secondary"
+      onClick={() => setOrderUnderReview(order)}
+    >
+      Review Cancellation
+    </Button>
+  )}
+</TableCell>
+
                 </TableRow>
               ))
             ) : (
@@ -171,6 +196,39 @@ const AllOrders = () => {
           Next
         </Button>
       </Box>
+      {orderUnderReview && (
+  <Dialog open={true} onClose={() => setOrderUnderReview(null)}>
+    <DialogTitle>Review Cancellation</DialogTitle>
+    <DialogContent>
+      <Typography>
+        Do you want to approve or reject the cancellation for order{" "}
+        <strong>{orderUnderReview.orderId}</strong>?
+      </Typography>
+    </DialogContent>
+    <DialogActions>
+      <Button
+        onClick={() => {
+          handleStatusChange(orderUnderReview.orderId, "CANCELLED");
+          setOrderUnderReview(null);
+        }}
+        color="error"
+        variant="contained"
+      >
+        Approve
+      </Button>
+      <Button
+        onClick={() => {
+          handleStatusChange(orderUnderReview.orderId, "REJECTED CANCELLATION");
+          setOrderUnderReview(null);
+        }}
+        color="primary"
+        variant="outlined"
+      >
+        Reject
+      </Button>
+    </DialogActions>
+  </Dialog>
+)}
     </Box>
   );
 };

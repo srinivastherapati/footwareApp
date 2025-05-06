@@ -4,7 +4,7 @@ import {
 } from "@mui/material";
 import ProductDetails from "./ProductDetails";
 
-export default function Meals({ isAdmin, isLoggedIn, setCurrentPage, products }) {
+export default function Products({ isAdmin, isLoggedIn, setCurrentPage, products }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   if (!products.length) {

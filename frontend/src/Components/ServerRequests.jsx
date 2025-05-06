@@ -76,9 +76,9 @@ export const updateOrderStatus = async (orderId, newStatus) => {
     throw error; // Propagate the error to the caller
   }
 };
-export const cancelOrder = async (id) => {
+export const cancelOrder = async (id,status) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}orders/cancel-order/${id}`);
+    const response = await axios.post(`${API_BASE_URL}orders/cancel-order/${id}?status=${status}`);
     return response.data; // No need to `await` again for `.data`
   } catch (error) {
     throw new Error(error.response?.data?.message || "Error canceling order");
@@ -138,7 +138,14 @@ export const updateProduct = async (productId, product) => {
 export const updateProductRating = async (userId, productId, rating) => {
   try {
     const response = await axios.post(
-      `${API_BASE_URL}review/add/${userId}/${productId}?rating=${rating}`
+      `${API_BASE_URL}api/review/add/`,{
+        productId,
+        userId,
+        rating,
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
     );
     return response; // Return the response data if needed
   } catch (error) {

@@ -7,7 +7,6 @@ const productVariantSchema = new mongoose.Schema({
     stock: { type: Number,  },
     productName: { type: String,  },
     attributes: { type: Map, of: String },
-    type: { type: String },
 }, { timestamps: true });
 
 const ProductVarientModal = mongoose.model('ProductVariant', productVariantSchema);

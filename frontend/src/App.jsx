@@ -3,7 +3,7 @@ import LoginPage from "./Components/LoginPage";
 import Cart from "./Components/Cart";
 import Checkout from "./Components/Checkout";
 import Header from "./Components/Header";
-import Meals from "./Components/Meals";
+import Products from "./Components/Products";
 import CustomerOrders from "./Components/CustomerOrders";
 import AllOrders from "./Components/AllOrders";
 import AllUsers from "./Components/AllUsers";
@@ -61,7 +61,7 @@ function App() {
                 onProductsFetched={setProducts}
               />
               {currentPage == "products" && (
-                <Meals
+                <Products
                   isAdmin={userData ? userData.role === "admin" : null}
                   isLoggedIn={loggedIn}
                   setCurrentPage={setCurrentPage}

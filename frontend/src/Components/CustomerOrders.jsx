@@ -41,7 +41,7 @@ const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const handleCancelOrder = useCallback(async (id, status) => {
     if (["READY", "READY FOR PICKUP", "DELIVERED"].includes(status)) {
-      alert("Order cannot be canceled. Refund cannot be issued.");
+      alert("Order cannot be canceled");
       return;
     }
 
@@ -49,12 +49,12 @@ const [selectedOrderId, setSelectedOrderId] = useState(null);
     if (!confirmCancel) return;
 
     try {
-      const response = await cancelOrder(id);
+      const response = await cancelOrder(id,"CANCELLED BY USER");
       if (response.status === "ok") {
-        alert("Order Cancelled, Refund Initiated");
+        alert("Order Cancelled, waiting for admin approval");
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
-            order.orderId === id ? { ...order, status: "CANCELLED" } : order
+            order.orderId === id ? { ...order, status: "CANCELLED BY USER" } : order
           )
         );
       } else {
@@ -78,27 +78,43 @@ const [selectedOrderId, setSelectedOrderId] = useState(null);
     setReturnDialogOpen(true);
   };
   
-  const handleReturnSubmit = () => {
+  const handleReturnSubmit = async () => {
     if (!returnReason.trim()) {
       alert("Please enter a reason for the return.");
       return;
     }
   
-    // Mocking backend call
-    alert("Return placed successfully!");
-    
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.orderId === selectedOrderId
-          ? { ...order, status: "RETURNED" }
-          : order
-      )
-    );
+    try {
+      const response = await fetch(`http://localhost:3001/orders/update-status/${selectedOrderId}/RETURNED`, {
+        method: "PUT",
+      });
   
-    setReturnDialogOpen(false);
-    setReturnReason("");
-    setSelectedOrderId(null);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to update order status");
+      }
+  
+      const result = await response.json(); // or use response.json() if your backend returns JSON
+      alert(result); // e.g., "Order status updated to RETURNED"
+  
+      // Update local state
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.orderId === selectedOrderId
+            ? { ...order, status: "RETURNED" }
+            : order
+        )
+      );
+  
+      // Cleanup
+      setReturnDialogOpen(false);
+      setReturnReason("");
+      setSelectedOrderId(null);
+    } catch (error) {
+      alert(`Return failed: ${error.message}`);
+    }
   };
+  
   
   
 

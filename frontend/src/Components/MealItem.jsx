@@ -7,10 +7,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { deleteProduct, addToWishlist, removeFromWishlist, checkWishlist } from "./ServerRequests";
 import { use } from "react";
+import {Button} from "../UI/Buttons";
 
 import "../index.css";
 
-export default function MealItem({
+export default function ProductItems({
   product,
   isAdmin,
   onEdit,
@@ -86,12 +87,10 @@ export default function MealItem({
           <div>
             <h3>{product.name}</h3>
             <p className="meal-item-description">{product.description}</p>
-
-            {product.productVariants.length > 0 && (
-              <button onClick={() => setShowVariants(true)} className="view-variants-button">
-                View Variants
-              </button>
-            )}
+           
+               <Button variant="outlined" onClick={() => setShowVariants(true)} sx={{ mr: 2 }}>
+               View Variants
+             </Button>
 
             <div className="price-and-options">
               {!isAdmin && product.productVariants.length > 0 && (

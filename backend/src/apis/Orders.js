@@ -261,7 +261,7 @@ ordersRouter.get('/orders/:orderId', async (req, res) => {
 // Cancel order
 ordersRouter.post('/orders/cancel-order/:orderId', async (req, res) => {
     try {
-        const { orderId } = req.params;
+        const { orderId,status } = req.params;
 
         // Find payment for the order
         const payment = await Payments.findOne({ orderId });
@@ -281,7 +281,7 @@ ordersRouter.post('/orders/cancel-order/:orderId', async (req, res) => {
         }
 
         // Update order status
-        order.status = "CANCELLED";
+        order.status =status ;
         await order.save();
 
         // Update product quantities

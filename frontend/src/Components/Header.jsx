@@ -10,7 +10,7 @@ import logoImg from "../assets/logo.jpg";
 import CartContext from "./Store/CartContext.jsx";
 import UserProgressContext from "./Store/UserProgressContext.jsx";
 import { API_BASE_URL } from "./ServerRequests.jsx";
-import AddMealModal from "./AddMealModal.jsx";
+import AddProductMOdal from "./AddProductModal.jsx"
 
 export default function Header({
   isAdmin, isLoggedIn, userData, onLogout, setCurrentPage, onProductsFetched
@@ -214,7 +214,7 @@ export default function Header({
       </Drawer>
 
       {/* Add Product Modal */}
-      <AddMealModal
+      <AddProductMOdal
         open={showAddProductModal}
         onClose={() => setShowAddProductModal(false)}
         isAdd={true}

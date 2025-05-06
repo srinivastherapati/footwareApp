@@ -13,12 +13,23 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
+    brand:{
+        type: String,
+        required: true
+    },
+    modal:{
+        type: String,
+        required: true
+    },
+    typeOfWear:{
+        type: String,
+        required: true
+    },
     category: {
         type: String,
         required: true
     },
-   
-    
+ 
     rating:{
         type:Number
     },

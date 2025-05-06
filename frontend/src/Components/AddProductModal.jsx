@@ -21,8 +21,12 @@ const modalStyle = {
   p: 4,
 };
 
-export default function AddMealModal({ open, onClose, currentProduct, isAdd }) {
+export default function AddProductMOdal({ open, onClose, currentProduct, isAdd }) {
   const [name, setName] = useState(currentProduct?.name || "");
+  const [modal, setModal] = useState(currentProduct?.modal || "");
+  const [brand, setBrand] = useState(currentProduct?.brand || "");
+  const [typeOfWear, setTypeOfWear] = useState(
+    currentProduct?.typeOfWear || "");
   const [imageUrl, setImageUrl] = useState(currentProduct?.imageUrl || "");
   const [description, setDescription] = useState(
     currentProduct?.description || ""
@@ -31,10 +35,12 @@ export default function AddMealModal({ open, onClose, currentProduct, isAdd }) {
   const [productVariants, setVariants] = useState({
     size: currentProduct?.productVariants?.size || "",
     color: currentProduct?.productVariants?.color || "",
-    type: currentProduct?.productVariants?.type || "",
     price:currentProduct?.productVariants?.price || 0,
     stock:currentProduct?.productVariants?.stock || 1,
   });
+
+  const categories = ["MEN", "WOMEN", "GIRLS", "BOYS", "KIDS"];
+const types = ["SNEAKERS", "RUNNING", "CASUAL","SPORTS", "FORMAL", "LOAFERS", "BOOTS"];
 
   const handleVariantChange = (key, value) => {
     setVariants((prev) => ({ ...prev, [key]: value }));
@@ -44,7 +50,6 @@ export default function AddMealModal({ open, onClose, currentProduct, isAdd }) {
     const variantsArray = [
       {
         size: productVariants.size,
-        type: productVariants.type.toUpperCase(),
         color: productVariants.color, 
         price:productVariants.price,
         stock:productVariants.stock
@@ -54,6 +59,9 @@ export default function AddMealModal({ open, onClose, currentProduct, isAdd }) {
       name,
       imageUrl,
       description,
+      brand,
+      modal,
+      typeOfWear,
       category:category.toUpperCase(),
       productVariants: variantsArray,
     };
@@ -98,6 +106,22 @@ export default function AddMealModal({ open, onClose, currentProduct, isAdd }) {
             onChange={(e) => setName(e.target.value)}
             required
           />
+           <TextField
+    label="Brand"
+    fullWidth
+    margin="normal"
+    value={brand}
+    onChange={(e) => setBrand(e.target.value)}
+    required
+  />
+  <TextField
+    label="Modal"
+    fullWidth
+    margin="normal"
+    value={modal}
+    onChange={(e) => setModal(e.target.value)}
+    required
+  />
           <TextField
             label="Image URL"
             fullWidth
@@ -114,14 +138,37 @@ export default function AddMealModal({ open, onClose, currentProduct, isAdd }) {
             onChange={(e) => setDescription(e.target.value)}
             required
           />
-          <TextField
-            label="Category"
-            fullWidth
-            margin="normal"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-            />
+         <TextField
+        select
+        label="Category"
+        fullWidth
+        margin="normal"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        required
+      >
+        {categories.map((cat) => (
+          <MenuItem key={cat} value={cat}>
+            {cat}
+          </MenuItem>
+        ))}
+      </TextField>
+
+      <TextField
+        select
+        label="Type"
+        fullWidth
+        margin="normal"
+        value={typeOfWear}
+        onChange={(e) => setTypeOfWear(e.target.value)}
+        required
+      >
+        {types.map((type) => (
+          <MenuItem key={type} value={type}>
+            {type}
+          </MenuItem>
+        ))}
+      </TextField>
 
           <Button
             variant="contained"

@@ -22,8 +22,8 @@ export default function VariantsDialog({ product, onClose }) {
               <tr key={index}>
                 <td>{variant.size}</td>
                 <td>{variant.color}</td>
-                <td>{variant.type}</td>
-                <td>{variant.stock} left</td>
+                <td>{product.typeOfWear}</td>
+                <td>{variant.stock}</td>
                 <td>{variant.price.toFixed(2)}</td>
                 <td>
                   {variant.attributes ? (

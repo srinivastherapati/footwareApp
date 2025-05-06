@@ -1,53 +1,47 @@
 import { useContext, useState } from "react";
 import axios from "axios";
-import Modal from "./UI/Modal";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Checkbox,
+  CircularProgress,
+  Divider,
+  FormControlLabel,
+  Grid,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { format } from "date-fns";
+
 import CartContext from "./Store/CartContext";
-import Buttons from "./UI/Buttons";
-import Input from "./UI/Input";
 import UserProgressContext from "./Store/UserProgressContext";
-import ErrorPage from "./ErrorPage";
 import { API_BASE_URL } from "./ServerRequests";
+import Modal from "./UI/Modal";
+import ErrorPage from "./ErrorPage";
 
 export default function Checkout() {
   const crtCntxt = useContext(CartContext);
   const userPrgrs = useContext(UserProgressContext);
   const userId = JSON.parse(localStorage.getItem("userDetails")).userId;
 
-  const [isOrderPlaced, setIsOrderPlaced] = useState({
-    placed: false,
-    message: "",
-  }); // Track if the order is placed successfully.
+  const [isOrderPlaced, setIsOrderPlaced] = useState({ status: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [cardNumber, setCardNumber] = useState("");
-  const [deliveryOption, setDeliveryOption] = useState("");
+  const [deliveryOption, setDeliveryOption] = useState("pickup");
   const [useShippingAddress, setUseShippingAddress] = useState(false);
+  const [expiryDate, setExpiryDate] = useState(null);
 
-  const cartTotal = crtCntxt.items.reduce((totalPrice, item) => {
-    return totalPrice + item.quantity * item.price;
-  }, 0);
 
-  function handleHideCheckout() {
-    userPrgrs.hideCheckout();
-  }
-  const handleChange = (e) => {
-    const value = e.target.value;
+  const cartTotal = crtCntxt.items.reduce((total, item) => total + item.quantity * item.price, 0);
 
-    if (/^\d*$/.test(value) && value.length <= 16) {
-      setCardNumber(value);
-      setError("");
-    } else {
-      setError("Card Number must contain only up to 16 digits.");
-    }
-  };
-
-  function handleFinish() {
-    setIsOrderPlaced({ status: false, message: "" }); // Reset state for future use.
-    userPrgrs.hideCheckout();
-    crtCntxt.clearCart();
-  }
-
-  async function handleSubmit(event) {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
@@ -70,147 +64,119 @@ export default function Checkout() {
           },
         }
       );
-
       if (response.status === 200 || response.status === 201) {
-        setIsOrderPlaced({ status: true, message: response.data.message }); // Show success modal.
+        setIsOrderPlaced({ status: true, message: response.data.message });
+        crtCntxt.clearCart();
       }
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong!");
     } finally {
       setIsLoading(false);
     }
-  }
-
-  let actions = (
-    <>
-      <Buttons type="button" textOnly onClick={handleHideCheckout}>
-        Close
-      </Buttons>
-      <Buttons>Place Order</Buttons>
-    </>
-  );
-
-  if (isLoading) {
-    actions = <span>Placing your order...</span>;
-  }
-
-  if (isOrderPlaced.status) {
-    return (
-      <Modal open={userPrgrs.progress === "checkout"}>
-        <h2>Success!</h2>
-        <p>Your Order Placed Successfully</p>
-        {isOrderPlaced.message.trim().length != 0 ? (
-          <p>{isOrderPlaced.message}</p>
-        ) : (
-          <></>
-        )}
-        <p className="modal-actions">
-          <Buttons onClick={handleFinish}>Okay</Buttons>
-        </p>
-      </Modal>
-    );
-  }
-  const handleDeliveryOptionChange = (e) => {
-    setDeliveryOption(e.target.value);
-    setUseShippingAddress(false); // Reset checkbox selection when delivery option changes
   };
 
-  const handleCheckboxChange = (e) => {
-    setUseShippingAddress(e.target.checked);
+  const handleFinish = () => {
+    setIsOrderPlaced({ status: false, message: "" });
+    userPrgrs.hideCheckout();
   };
 
   if (error) {
     return <ErrorPage title="Failed to place order" message={error} />;
   }
 
+  if (isOrderPlaced.status) {
+    return (
+      <Modal open={userPrgrs.progress === "checkout"}>
+        <Typography variant="h5">Success!</Typography>
+        <Typography>Your Order Placed Successfully</Typography>
+        {isOrderPlaced.message && <Typography>{isOrderPlaced.message}</Typography>}
+        <Box sx={{ mt: 2 }}>
+          <Button variant="contained" onClick={handleFinish}>Okay</Button>
+        </Box>
+      </Modal>
+    );
+  }
+
   return (
     <Modal open={userPrgrs.progress === "checkout"}>
       <form onSubmit={handleSubmit}>
-        <h2>Checkout</h2>
-        <p>Total Amount: {Math.round(cartTotal * 100) / 100}</p>
-        <Input id="name" type="text" label="Full Name" />
-        <Input id="email" type="email" label="Email" />
-        <Input id="street" type="text" label="Street" />
-        <div className="control-row">
-          <Input id="city" type="text" label="City" />
-          <Input id="postal-code" type="text" label="Postal Code" />
-        </div>
-        <p>Delivery Options</p>
-        <div className="control-row">
-          <label>
-            <input
-              type="radio"
-              name="deliveryOption"
-              value="pickup"
-              onChange={handleDeliveryOptionChange}
-              required
-            />
-            Pickup (everyDay 10am-10pm)
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="deliveryOption"
-              value="delivery"
-              onChange={handleDeliveryOptionChange}
-              required
-            />
-            Delivery
-          </label>
-        </div>
+        <Card sx={{ p: 3, maxWidth: 700, margin: "auto" }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>
+              Checkout
+            </Typography>
 
-        {/* Conditional Address Options for Delivery */}
-        {deliveryOption === "delivery" && (
-          <div>
-            <p>Address Options</p>
-            <label>
-              <input
-                type="checkbox"
-                checked={useShippingAddress}
-                onChange={handleCheckboxChange}
-              />
-              Same as Shipping Address
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={!useShippingAddress}
-                onChange={() => setUseShippingAddress(false)}
-              />
-              Add New Address
-            </label>
-            {!useShippingAddress && (
-              <div>
-                <Input id="new-street" type="text" label="Street" />
-                <div className="control-row">
-                  <Input id="new-city" type="text" label="City" />
-                  <Input id="new-state" type="text" label="State" />
-                  <Input id="new-zip" type="text" label="Zip Code" />
-                </div>
-              </div>
+            <Typography variant="subtitle1" gutterBottom>
+              Total Amount: ${Math.round(cartTotal * 100) / 100}
+            </Typography>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="h6">Shipping Information</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}><TextField name="name" label="Full Name" fullWidth required /></Grid>
+              <Grid item xs={12} sm={6}><TextField name="email" label="Email" fullWidth required /></Grid>
+              <Grid item xs={12}><TextField name="street" label="Street" fullWidth required /></Grid>
+              <Grid item xs={6}><TextField name="city" label="City" fullWidth required /></Grid>
+              <Grid item xs={6}><TextField name="postalCode" label="Postal Code" fullWidth required /></Grid>
+            </Grid>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="h6">Delivery Option</Typography>
+            <RadioGroup
+              name="deliveryOption"
+              value={deliveryOption}
+              onChange={(e) => setDeliveryOption(e.target.value)}
+              row
+            >
+              <FormControlLabel value="pickup" control={<Radio required />} label="Pickup" />
+              <FormControlLabel value="delivery" control={<Radio required />} label="Delivery" />
+            </RadioGroup>
+
+            {deliveryOption === "delivery" && (
+              <>
+                <FormControlLabel
+                  control={<Checkbox checked={useShippingAddress} onChange={() => setUseShippingAddress(!useShippingAddress)} />}
+                  label="Same as Shipping Address"
+                />
+                {!useShippingAddress && (
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}><TextField name="newStreet" label="Street" fullWidth required /></Grid>
+                    <Grid item xs={4}><TextField name="newCity" label="City" fullWidth required /></Grid>
+                    <Grid item xs={4}><TextField name="newState" label="State" fullWidth required /></Grid>
+                    <Grid item xs={4}><TextField name="newZip" label="Zip Code" fullWidth required /></Grid>
+                  </Grid>
+                )}
+              </>
             )}
-          </div>
-        )}
-        <p>Card Details</p>
-        <Input
-          id="cardNumber"
-          type="text"
-          value={cardNumber}
-          onChange={handleChange}
-          placeholder="Enter your card number"
-        />
-        <Input id="Name on Card" type="text" label="Name On Card" />
-        <Input id="CVV" type="text" label="CVV" maxLength={3} />
-        <Input
-          id="expiry"
-          type="text"
-          label="Expiry"
-          placeholder="MM/YYYY"
-          pattern="(0[1-9]|1[0-2])\/\d{4}"
-          title="Enter expiry date in MM/YYYY format"
-        />
-        <p className="modal-actions">{actions}</p>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="h6">Payment Information</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12}><TextField name="cardNumber" label="Card Number" fullWidth required value={cardNumber} onChange={(e) => {
+                const val = e.target.value;
+                if (/^\d*$/.test(val) && val.length <= 16) setCardNumber(val);
+              }} /></Grid>
+              <Grid item xs={6}><TextField name="nameOnCard" label="Name on Card" fullWidth required /></Grid>
+              <Grid item xs={3}><TextField name="cvv" label="CVV" fullWidth required inputProps={{ maxLength: 3 }} /></Grid>
+              <Grid item xs={3}><TextField name="expiry" label="Expiry (MM/YYYY)" fullWidth required /></Grid>
+            </Grid>
+
+            <Box sx={{ mt: 3, textAlign: "right" }}>
+              <Button onClick={() => userPrgrs.hideCheckout()} sx={{ mr: 2 }}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="contained" color="primary" disabled={isLoading}>
+                {isLoading ? <CircularProgress size={24} /> : "Place Order"}
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
       </form>
     </Modal>
   );
 }
+
+

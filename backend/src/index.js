@@ -7,6 +7,7 @@ import loginRouter from './apis/login.js';
 import productRouter from './apis/Products.js';
 import ordersRouter from './apis/Orders.js';
 import wishlistRouter from './apis/wishlist.js';
+import reviewRouter from './apis/Reviews.js';
 const app=express();
 const db = mongoose.connection;
 app.use(express.json());
@@ -14,7 +15,8 @@ app.use(customerRouter);
 app.use(loginRouter);
 app.use(productRouter);
 app.use(ordersRouter);
-app.use(wishlistRouter)
+app.use(wishlistRouter);
+app.use(reviewRouter);
 
 app.use(cors());
 
