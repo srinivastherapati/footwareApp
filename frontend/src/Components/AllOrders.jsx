@@ -29,7 +29,6 @@ const statusOptions = [
   "DELIVERED",
   "CANCELLED",
   "CANCELLED BY USER",
-  "Cancelled (By Admin)",
   "RETURNED",
 ];
 

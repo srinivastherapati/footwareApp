@@ -7,7 +7,7 @@ const productRouter = express.Router();
 productRouter.post('/product/add', async (req, res) => {
     try {
         console.log("Entered add product");
-        const { name, description, imageUrl, category, productVariants,brand,modal,typeOfWear } = req.body;
+        const { name, description, imageUrl, category, productVariants,brand,modal,typeOfWearOfWear } = req.body;
 
         if (!name) return res.status(400).json({ message: "Product name can't be null" });
         if (!description) return res.status(400).json({ message: "Product description can't be null" });
@@ -35,7 +35,7 @@ productRouter.post('/product/add', async (req, res) => {
             productVariants: savedVariants.map(v => v._id) ,
             brand:brand.toUpperCase(),
             modal,
-            typeOfWear:typeOfWear.toUpperCase()
+            typeOfWearOfWear:typeOfWearOfWear.toUpperCase()
         });
         await product.save();
 
@@ -47,7 +47,7 @@ productRouter.post('/product/add', async (req, res) => {
 });
 
 productRouter.get('/product/get', async (req, res) => {
-  const { search, sort, category, type, page = 1, limit = 10 } = req.query;
+  const { search, sort, category, typeOfWear, page = 1, limit = 10 } = req.query;
 
   try {
     let filter = {};
@@ -65,22 +65,12 @@ productRouter.get('/product/get', async (req, res) => {
       filter.category = category;
     }
 
-    // Step 1: Get product names matching the type from variants
-    let productNamesWithType = [];
-    if (type) {
-      const variantsWithType = await ProductVariant.find({ type });
-      productNamesWithType = variantsWithType.map(v => v.productName);
+    // Filter by typeOfWear (now directly on Product)
+    if (typeOfWear) {
+      filter.typeOfWear = typeOfWear;
     }
 
-    // Step 2: Apply type filter to products
-    if (type) {
-      filter.$or = filter.$or || [];
-      filter.$or.push({ type }); // Directly filter products with type
-      if (productNamesWithType.length > 0) {
-        filter.$or.push({ name: { $in: productNamesWithType } });
-      }
-    }
-
+    // Build query
     let query = Product.find(filter);
 
     // Apply sorting
@@ -105,13 +95,14 @@ productRouter.get('/product/get', async (req, res) => {
 
     return res.status(200).json({
       products: updatedProducts,
-      hasMore: page * limit < totalProducts // Check if more products are available
+      hasMore: page * limit < totalProducts
     });
 
   } catch (error) {
     return res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
 
 
 

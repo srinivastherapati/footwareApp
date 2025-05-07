@@ -259,7 +259,7 @@ ordersRouter.get('/orders/:orderId', async (req, res) => {
 });
 
 // Cancel order
-ordersRouter.post('/orders/cancel-order/:orderId', async (req, res) => {
+ordersRouter.post('/orders/cancel-order/:orderId/:status', async (req, res) => {
     try {
         const { orderId,status } = req.params;
 

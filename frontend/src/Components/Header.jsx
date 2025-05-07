@@ -34,7 +34,7 @@ export default function Header({
   const fetchProducts = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}product/get?page=1&limit=100&search=${searchQuery}&sort=${sortOption}&category=${selectedCategories.join(",")}&type=${selectedTypes.join(",")}`
+        `${API_BASE_URL}product/get?page=1&limit=100&search=${searchQuery}&sort=${sortOption}&category=${selectedCategories.join(",")}&typeOfWear=${selectedTypes.join(",")}`
       );
       const data = await response.json();
       if (data.products) {

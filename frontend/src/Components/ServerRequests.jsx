@@ -78,8 +78,8 @@ export const updateOrderStatus = async (orderId, newStatus) => {
 };
 export const cancelOrder = async (id,status) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}orders/cancel-order/${id}?status=${status}`);
-    return response.data; // No need to `await` again for `.data`
+    const response = await axios.post(`${API_BASE_URL}orders/cancel-order/${id}/${status}`);
+    return response.data; 
   } catch (error) {
     throw new Error(error.response?.data?.message || "Error canceling order");
   }

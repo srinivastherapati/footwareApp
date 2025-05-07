@@ -55,37 +55,59 @@ export default function ProductDetails({ product, isLoggedIn, onClose, isAdmin }
           </>
         ) : (
           <>
-            <Typography variant="subtitle1">Select Size</Typography>
-            <Select fullWidth value={size} onChange={(e) => setSize(e.target.value)}>
-              <MenuItem value="">Select Size</MenuItem>
-              {[...new Set(product.productVariants.map((v) => v.size))].map((size) => (
-                <MenuItem key={size} value={size}>
-                  {size}
-                </MenuItem>
-              ))}
-            </Select>
+  <Typography variant="subtitle1">Select Size</Typography>
+  <Select fullWidth value={size} onChange={(e) => setSize(e.target.value)}>
+    <MenuItem value="">Select Size</MenuItem>
+    {[...new Set(product.productVariants
+      .filter((v) => v.stock > 0)
+      .map((v) => v.size))].map((size) => (
+      <MenuItem key={size} value={size}>
+        {size}
+      </MenuItem>
+    ))}
+  </Select>
 
-            <Typography variant="subtitle1" sx={{ mt: 2 }}>
-              Select Color
-            </Typography>
-            <Select fullWidth value={color} onChange={(e) => setColor(e.target.value)}>
-              <MenuItem value="">Select Color</MenuItem>
-              {[...new Set(product.productVariants.map((v) => v.color))].map((color) => (
-                <MenuItem key={color} value={color}>
-                  {color}
-                </MenuItem>
-              ))}
-            </Select>
+  <Typography variant="subtitle1" sx={{ mt: 2 }}>
+    Select Color
+  </Typography>
+  <Select fullWidth value={color} onChange={(e) => setColor(e.target.value)}>
+    <MenuItem value="">Select Color</MenuItem>
+    {[...new Set(product.productVariants
+      .filter((v) => v.stock > 0 && v.size === size)
+      .map((v) => v.color))].map((color) => (
+      <MenuItem key={color} value={color}>
+        {color}
+      </MenuItem>
+    ))}
+  </Select>
 
-            <Button
-              variant="contained"
-              fullWidth
-              sx={{ mt: 3 }}
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </Button>
-          </>
+  {/* Show price when size and color are selected */}
+  {size && color && (
+    <Typography variant="h6" sx={{ mt: 2 }}>
+      Price: $
+      {
+        product.productVariants.find(
+          (v) => v.size === size && v.color === color && v.stock > 0
+        )?.price ?? "N/A"
+      }
+    </Typography>
+  )}
+
+  <Button
+    variant="contained"
+    fullWidth
+    sx={{ mt: 3 }}
+    onClick={handleAddToCart}
+    disabled={
+      !product.productVariants.find(
+        (v) => v.size === size && v.color === color && v.stock > 0
+      )
+    }
+  >
+    Add to Cart
+  </Button>
+</>
+
         )}
       </Box>
 
