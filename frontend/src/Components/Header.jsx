@@ -26,10 +26,27 @@ export default function Header({
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [allCategories, setAllCategories] = useState([]);
 
   useEffect(() => {
     fetchProducts();
   }, [searchQuery, sortOption, selectedCategories, selectedTypes]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}categories`);
+      const data = await res.json();
+      if (data.categories) {
+        setAllCategories(data.categories.map(c => c.name));
+      }
+    } catch (error) {
+      console.error("Failed to load categories", error);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -96,6 +113,28 @@ export default function Header({
             </Button>
           )}
 
+<Button variant="outlined" onClick={async () => {
+  const category = prompt("Enter new category name:");
+  if (!category) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}categories/add`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: category })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert("Category added successfully!");
+      fetchCategories(); // Refresh list
+    } else {
+      alert(data.message);
+    }
+  } catch (err) {
+    alert("Error adding category");
+  }
+}}>Add Category</Button>
+
+
           {isAdmin && (
             <>
               <Typography sx={{ cursor: "pointer" }} onClick={() => setCurrentPage("all-orders")}>ORDERS</Typography>
@@ -157,7 +196,7 @@ export default function Header({
           </Select>
 
           {/* Categories */}
-          <Typography sx={{ mt: 2 }}>Category</Typography>
+          <Typography sx={{ mt: 2 }}>GENDER</Typography>
           <FormGroup>
             {["MEN", "WOMEN", "GIRLS", "BOYS", "KIDS"].map((category) => (
               <FormControlLabel
@@ -180,26 +219,27 @@ export default function Header({
           </FormGroup>
 
           {/* Types */}
-          <Typography sx={{ mt: 2 }}>Type</Typography>
+          <Typography sx={{ mt: 2 }}>CATEGORY</Typography>
           <FormGroup>
-            {["SNEAKERS", "RUNNING", "CASUAL", "SPORTS", "FORMAL", "LOAFERS", "BOOTS"].map((type) => (
-              <FormControlLabel
-                key={type}
-                control={
-                  <Checkbox
-                    checked={selectedTypes.includes(type)}
-                    onChange={() =>
-                      setSelectedTypes((prev) =>
-                        prev.includes(type)
-                          ? prev.filter((t) => t !== type)
-                          : [...prev, type]
-                      )
-                    }
-                  />
-                }
-                label={type}
-              />
-            ))}
+          {allCategories.map((category) => (
+  <FormControlLabel
+    key={category}
+    control={
+      <Checkbox
+        checked={selectedCategories.includes(category)}
+        onChange={() =>
+          setSelectedCategories((prev) =>
+            prev.includes(category)
+              ? prev.filter((c) => c !== category)
+              : [...prev, category]
+          )
+        }
+      />
+    }
+    label={category}
+  />
+))}
+
           </FormGroup>
 
           {/* Action Buttons */}

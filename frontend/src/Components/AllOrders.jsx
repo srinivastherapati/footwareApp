@@ -32,6 +32,32 @@ const statusOptions = [
   "RETURNED",
 ];
 
+const deliveryStatusOptions = [
+  "PLACED",
+  "PREPARING",
+  "SHIPPED",
+  "OUT FOR DELIVERY",
+  "DELIVERED",
+  "CANCELLED",
+  "CANCELLED BY USER",
+];
+
+const pickupStatusOptions = [
+  "PLACED",
+  "PREPARING",
+  "READY FOR PICKUP",
+  "PICKED UP",
+  "CANCELLED",
+  "CANCELLED BY USER",
+];
+
+// Fallback if orderType is unknown or missing
+const getStatusOptions = (type) => {
+  if (type === "PICKUP") return pickupStatusOptions;
+  if (type === "DELIVERY") return deliveryStatusOptions;
+  return [];
+};
+
 const AllOrders = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setLoading] = useState(true);
@@ -143,7 +169,7 @@ const AllOrders = () => {
       order.status === "RETURNED"
     }
   >
-    {statusOptions.map((option) => (
+    {getStatusOptions(order.deliveryType).map((option) => (
       <MenuItem key={option} value={option}>
         {option}
       </MenuItem>

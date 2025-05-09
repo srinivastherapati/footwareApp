@@ -112,7 +112,7 @@ export default function Checkout() {
 
             <Divider sx={{ my: 2 }} />
 
-            <Typography variant="h6">Shipping Information</Typography>
+            {/* <Typography variant="h6">Shipping Information</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}><TextField name="name" label="Full Name" fullWidth required /></Grid>
               <Grid item xs={12} sm={6}><TextField name="email" label="Email" fullWidth required /></Grid>
@@ -121,7 +121,7 @@ export default function Checkout() {
               <Grid item xs={6}><TextField name="postalCode" label="Postal Code" fullWidth required /></Grid>
             </Grid>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 2 }} /> */}
 
             <Typography variant="h6">Delivery Option</Typography>
             <RadioGroup

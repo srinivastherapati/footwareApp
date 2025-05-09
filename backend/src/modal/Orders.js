@@ -17,6 +17,9 @@ const orderSchema = new Schema({
         type: Date,
         required: true
     },
+    deliveryType:{
+        type: String
+    },
     totalAmount: {
         type: Number,
         required: true

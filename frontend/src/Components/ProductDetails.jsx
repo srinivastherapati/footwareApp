@@ -42,6 +42,9 @@ export default function ProductDetails({ product, isLoggedIn, onClose, isAdmin }
       <Typography variant="body1" sx={{ mt: 1 }}>
         {product.description}
       </Typography>
+      <Typography variant="body1" sx={{ mt: 2 }}>
+       Total Stock: {product.totalStock}
+      </Typography>
 
       <Box sx={{ mt: 3 }}>
         {isAdmin ? (

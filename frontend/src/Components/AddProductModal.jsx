@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Modal,
   Box,
@@ -39,8 +39,28 @@ export default function AddProductMOdal({ open, onClose, currentProduct, isAdd }
     stock:currentProduct?.productVariants?.stock || 1,
   });
 
+  const [Allcategories, setCategories] = useState([]);
+
+  
+
   const categories = ["MEN", "WOMEN", "GIRLS", "BOYS", "KIDS"];
 const types = ["SNEAKERS", "RUNNING", "CASUAL","SPORTS", "FORMAL", "LOAFERS", "BOOTS"];
+
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/categories");
+      const data = await res.json();
+      if (data.categories) {
+        setCategories(data.categories.map((c) => c.name));
+      }
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    }
+  };
+
+  fetchCategories();
+}, []);
 
   const handleVariantChange = (key, value) => {
     setVariants((prev) => ({ ...prev, [key]: value }));
@@ -140,7 +160,7 @@ const types = ["SNEAKERS", "RUNNING", "CASUAL","SPORTS", "FORMAL", "LOAFERS", "B
           />
          <TextField
         select
-        label="Category"
+        label="Gender"
         fullWidth
         margin="normal"
         value={category}
@@ -155,20 +175,20 @@ const types = ["SNEAKERS", "RUNNING", "CASUAL","SPORTS", "FORMAL", "LOAFERS", "B
       </TextField>
 
       <TextField
-        select
-        label="Type"
-        fullWidth
-        margin="normal"
-        value={typeOfWear}
-        onChange={(e) => setTypeOfWear(e.target.value)}
-        required
-      >
-        {types.map((type) => (
-          <MenuItem key={type} value={type}>
-            {type}
-          </MenuItem>
-        ))}
-      </TextField>
+      select
+      label="Category"
+      fullWidth
+      margin="normal"
+      value={typeOfWear}
+      onChange={(e) => setTypeOfWear(e.target.value)}
+      required
+    >
+      {Allcategories.map((category) => (
+        <MenuItem key={category} value={category}>
+          {category}
+        </MenuItem>
+      ))}
+    </TextField>
 
           <Button
             variant="contained"

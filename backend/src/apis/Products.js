@@ -89,7 +89,8 @@ productRouter.get('/product/get', async (req, res) => {
     const updatedProducts = await Promise.all(
       productsList.map(async (p) => {
         const variants = await ProductVariant.find({ productName: p.name });
-        return { ...p.toObject(), productVariants: variants };
+        const totalStock = variants.reduce((acc, variant) => acc + (variant.stock || 0), 0);
+        return { ...p.toObject(), productVariants: variants,totalStock };
       })
     );
 

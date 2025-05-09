@@ -1,13 +1,16 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import Buttons from "./UI/Buttons";
 import CartContext from "./Store/CartContext";
 import AddVariantModal from "./AddVariantModal";
 import VariantsDialog from "./VariantsDialog";
 import EditIcon from "@mui/icons-material/Edit";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { deleteProduct, addToWishlist, removeFromWishlist, checkWishlist } from "./ServerRequests";
-import { use } from "react";
-import {Button} from "../UI/Buttons";
+import {
+  deleteProduct,
+  addToWishlist,
+  removeFromWishlist,
+} from "./ServerRequests";
+import { Button } from "../UI/Buttons";
 
 import "../index.css";
 
@@ -20,24 +23,19 @@ export default function ProductItems({
   onAddVariant,
 }) {
   const cartContxt = useContext(CartContext);
-  const [selectedSize, setSelectedSize] = useState(""); 
-  const [selectColor, setSelectColor] = useState(""); 
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectColor, setSelectColor] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showVariants, setShowVariants] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
 
-  console.log(localStorage.getItem("userDetails"))
-  const userId=localStorage.getItem("userDetails")?.userId;
-
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     checkWishlist(product.id,userId).then((inWishlist) => setIsInWishlist(inWishlist));
-  //   }
-  // }, [product.id, isLoggedIn]);
+  const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+  const userId = userDetails?.userId;
 
   function handleAddMeal() {
     const matchingVariant = product.productVariants.find(
-      (variant) => variant.size === selectedSize && variant.color === selectColor 
+      (variant) =>
+        variant.size === selectedSize && variant.color === selectColor
     );
 
     if (!matchingVariant) {
@@ -57,11 +55,11 @@ export default function ProductItems({
 
   function handleWishlistToggle() {
     if (isInWishlist) {
-      removeFromWishlist(product.id,userId);
+      removeFromWishlist(product.id, userId);
       setIsInWishlist(false);
       alert("Removed from Wishlist");
     } else {
-      addToWishlist(product.id,userId);
+      addToWishlist(product.id, userId);
       setIsInWishlist(true);
       alert("Added to Wishlist");
     }
@@ -87,45 +85,54 @@ export default function ProductItems({
           <div>
             <h3>{product.name}</h3>
             <p className="meal-item-description">{product.description}</p>
-           
-               <Button variant="outlined" onClick={() => setShowVariants(true)} sx={{ mr: 2 }}>
-               View Variants
-             </Button>
+           Total Stock: <p >{product.totalStock}</p>
 
-            <div className="price-and-options">
-              {!isAdmin && product.productVariants.length > 0 && (
+
+            <Button
+              variant="outlined"
+              onClick={() => setShowVariants(true)}
+              sx={{ mr: 2 }}
+            >
+              View Variants
+            </Button>
+
+            {Array.isArray(product.productVariants) &&
+              product.productVariants.length > 0 && !isAdmin && (
                 <>
-                  <select
-                    value={selectedSize}
-                    onChange={(e) => setSelectedSize(e.target.value)}
-                    className="dropdown"
-                  >
-                    <option value="">Select Size</option>
-                    {[...new Set(product.productVariants.map((variant) => variant.size))].map(
-                      (size) => (
+
+                  <div className="price-and-options">
+                    <select
+                      value={selectedSize}
+                      onChange={(e) => setSelectedSize(e.target.value)}
+                      className="dropdown"
+                    >
+                      <option value="">Select Size</option>
+                      {[...new Set(
+                        product.productVariants.map((variant) => variant.size)
+                      )].map((size) => (
                         <option key={size} value={size}>
                           {size}
                         </option>
-                      )
-                    )}
-                  </select>
-                  <select
-                    value={selectColor}
-                    onChange={(e) => setSelectColor(e.target.value)}
-                    className="dropdown"
-                  >
-                    <option value="">Select Color</option>
-                    {[...new Set(product.productVariants.map((variant) => variant.color))].map(
-                      (color) => (
+                      ))}
+                    </select>
+
+                    <select
+                      value={selectColor}
+                      onChange={(e) => setSelectColor(e.target.value)}
+                      className="dropdown"
+                    >
+                      <option value="">Select Color</option>
+                      {[...new Set(
+                        product.productVariants.map((variant) => variant.color)
+                      )].map((color) => (
                         <option key={color} value={color}>
                           {color}
                         </option>
-                      )
-                    )}
-                  </select>
+                      ))}
+                    </select>
+                  </div>
                 </>
               )}
-            </div>
           </div>
 
           <p className="meal-item-actions">
@@ -136,15 +143,26 @@ export default function ProductItems({
             )}
             {isAdmin && (
               <div className="admin-actions">
-                <EditIcon sx={{ color: "#ffc404" }} onClick={() => onEdit(product)} />
-                <button onClick={() => setShowModal(true)} className="add-variant-button">
+                <EditIcon
+                  sx={{ color: "#ffc404" }}
+                  onClick={() => onEdit(product)}
+                />
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="add-variant-button"
+                >
                   Add Variant
                 </button>
               </div>
             )}
             {isLoggedIn && !isAdmin && (
-              <button onClick={handleWishlistToggle} className="wishlist-button">
-                <FavoriteIcon sx={{ color: isInWishlist ? "red" : "gray" }} />
+              <button
+                onClick={handleWishlistToggle}
+                className="wishlist-button"
+              >
+                <FavoriteIcon
+                  sx={{ color: isInWishlist ? "red" : "gray" }}
+                />
               </button>
             )}
           </p>
@@ -152,11 +170,18 @@ export default function ProductItems({
       </li>
 
       {showModal && (
-        <AddVariantModal product={product} onClose={() => setShowModal(false)} onAddVariant={onAddVariant} />
+        <AddVariantModal
+          product={product}
+          onClose={() => setShowModal(false)}
+          onAddVariant={onAddVariant}
+        />
       )}
 
       {showVariants && (
-        <VariantsDialog product={product} onClose={() => setShowVariants(false)} />
+        <VariantsDialog
+          product={product}
+          onClose={() => setShowVariants(false)}
+        />
       )}
     </>
   );
